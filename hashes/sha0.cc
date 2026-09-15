@@ -22,8 +22,18 @@
  * SOFTWARE.
  */
 #include "sha0.h"
-#include <netinet/in.h>
+//#include <netinet/in.h>
 #include <array>
+#include <bit>
+#include <cstdint>
+
+static void uint32_pack_big(void* x, uint32_t in) {
+  auto out = static_cast<char*>(x);
+  out[3]=(char)in; in>>=8;
+  out[2]=(char)in; in>>=8;
+  out[1]=(char)in; in>>=8;
+  out[0]=(char)in;
+}
 
 Hash::SHA0::SHA0()
 {
@@ -58,7 +68,8 @@ bool Hash::SHA0::digest(digest_t &digest)
 
     uint32_t* array = (uint32_t*)digest.data();
     for(int i = 0; i < 5; i++)
-        array[i] = htonl(H[i]);
+      uint32_pack_big(array + i, H[i]);
+        //array[i] = htonl_cpp(H[i]);
 
     return true;
 }
